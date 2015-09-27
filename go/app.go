@@ -64,6 +64,13 @@ type Friend struct {
 	CreatedAt time.Time
 }
 
+type Friend2 struct {
+	ID        int
+	AccountName string
+	NickName    string
+	CreatedAt time.Time
+}
+
 type Footprint struct {
 	UserID    int
 	OwnerID   int
@@ -678,19 +685,20 @@ func GetFriends(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := getCurrentUser(w, r)
-	rows, err := db.Query(`SELECT another,created_at FROM relations WHERE one = ?`, user.ID)
+	rows, err := db.Query(`SELECT another,account_name,nick_name,created_at FROM relations JOIN users ON relations.another = users.id WHERE one = ?`, user.ID)
 	if err != sql.ErrNoRows {
 		checkErr(err)
 	}
-	friends := make([]Friend, 0)
+	friends := make([]Friend2, 0)
 	for rows.Next() {
 		var another int
 		var createdAt time.Time
-		checkErr(rows.Scan(&another, &createdAt))
-		friends = append(friends, Friend{another, createdAt})
+		var account_name,nick_name string
+		checkErr(rows.Scan(&another, &account_name, &nick_name, &createdAt))
+		friends = append(friends, Friend2{another, account_name, nick_name, createdAt})
 	}
 	rows.Close()
-	render(w, r, http.StatusOK, "friends.html", struct{ Friends []Friend }{friends})
+	render(w, r, http.StatusOK, "friends.html", struct{ Friends []Friend2 }{friends})
 }
 
 func PostFriends(w http.ResponseWriter, r *http.Request) {
