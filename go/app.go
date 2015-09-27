@@ -350,22 +350,26 @@ LIMIT 10`, user.ID)
 	}
 	rows.Close()
 
-	rows, err = db.Query(`SELECT * FROM entries ORDER BY created_at DESC LIMIT 1000`)
-	if err != sql.ErrNoRows {
-		checkErr(err)
-	}
+	isEntriesOfFriendsFull := false
 	entriesOfFriends := make([]Entry, 0, 10)
-	for rows.Next() {
-		var id, userID, private int
-		var body string
-		var createdAt time.Time
-		checkErr(rows.Scan(&id, &userID, &private, &body, &createdAt))
-		if !isFriend(w, r, userID) {
-			continue
+	for i := 0; !isEntriesOfFriendsFull; i++ {
+		rows, err = db.Query(`SELECT * FROM entries ORDER BY created_at DESC LIMIT 100 OFFSET ?`, i * 100)
+		if err != sql.ErrNoRows {
+			checkErr(err)
 		}
-		entriesOfFriends = append(entriesOfFriends, Entry{id, userID, private == 1, strings.SplitN(body, "\n", 2)[0], strings.SplitN(body, "\n", 2)[1], createdAt})
-		if len(entriesOfFriends) >= 10 {
-			break
+		for rows.Next() {
+			var id, userID, private int
+			var body string
+			var createdAt time.Time
+			checkErr(rows.Scan(&id, &userID, &private, &body, &createdAt))
+			if !isFriend(w, r, userID) {
+				continue
+			}
+			entriesOfFriends = append(entriesOfFriends, Entry{id, userID, private == 1, strings.SplitN(body, "\n", 2)[0], strings.SplitN(body, "\n", 2)[1], createdAt})
+			if len(entriesOfFriends) >= 10 {
+				isEntriesOfFriendsFull = true
+				break
+			}
 		}
 	}
 	rows.Close()
