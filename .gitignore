@@ -8,6 +8,8 @@ scala/*
 go/app
 .swo
 *.swp
+go/pkg/
+go/src/
 
 .idea
 *.iml
