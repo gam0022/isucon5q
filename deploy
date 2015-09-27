@@ -17,7 +17,7 @@ ssh -t -t $ssh_host <<-EOS
   sudo systemctl start isuxi.go
   sudo chmod 777 /tmp/go.sock
   sudo service nginx start
-  sudo service mysql restart
+  #sudo service mysql restart
 
   exit
 EOS
