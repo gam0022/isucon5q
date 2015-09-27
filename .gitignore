@@ -1,0 +1,13 @@
+java/*
+perl/*
+php/*
+python/*
+ruby/*
+scala/*
+
+go/app
+.swo
+*.swp
+
+.idea
+*.iml
