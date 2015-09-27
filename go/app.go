@@ -17,6 +17,7 @@ import (
 	"strings"
 	"time"
 	"regexp"
+	"net"
 )
 
 var (
@@ -787,7 +788,10 @@ func main() {
 	r.HandleFunc("/initialize", myHandler(GetInitialize))
 	r.HandleFunc("/", myHandler(GetIndex))
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("../static")))
-	log.Fatal(http.ListenAndServe(":8080", r))
+
+	// log.Fatal(http.ListenAndServe(":8080", r))
+	listen,_ := net.Listen("unix", "/tmp/go.sock")
+	log.Fatal(http.Serve(listen, r))
 }
 
 func checkErr(err error) {

@@ -15,7 +15,7 @@ ssh -t -t $ssh_host <<-EOS
   sudo systemctl stop isuxi.go
   sudo rm -f /tmp/go.sock
   sudo systemctl start isuxi.go
-  sudo chown isucon:isucon /tmp/go.sock
+  sudo chmod 777 /tmp/go.sock
   sudo service nginx start
   sudo service mysql restart
 
