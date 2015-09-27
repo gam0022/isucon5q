@@ -73,6 +73,8 @@ def main():
             request = 'GET /diary/entries/*'
         if request.startswith('GET /diary/entry/'):
             request = 'GET /diary/entry/*'
+        if request.startswith('GET /diary/comment/'):
+            request = 'GET /diary/comment/*'
 
         req_count[request] += 1
         if reqtime:
