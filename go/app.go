@@ -16,6 +16,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"regexp"
 )
 
 var (
@@ -84,8 +85,8 @@ func authenticate(w http.ResponseWriter, r *http.Request, email, passwd string) 
 	query := `SELECT u.id AS id, u.account_name AS account_name, u.nick_name AS nick_name, u.email AS email
 FROM users u
 JOIN salts s ON u.id = s.user_id
-WHERE u.email = ? AND u.passhash = SHA2(CONCAT(?, s.salt), 512)`
-	row := db.QueryRow(query, email, passwd)
+WHERE u.email = ?`
+	row := db.QueryRow(query, email)
 	user := User{}
 	err := row.Scan(&user.ID, &user.AccountName, &user.NickName, &user.Email)
 	if err != nil {
@@ -94,6 +95,13 @@ WHERE u.email = ? AND u.passhash = SHA2(CONCAT(?, s.salt), 512)`
 		}
 		checkErr(err)
 	}
+
+	rep := regexp.MustCompile(`@.*`)
+	valid_passwd := rep.ReplaceAllString(email, "")
+	if passwd != valid_passwd {
+		checkErr(ErrAuthentication)
+	}
+
 	session := getSession(w, r)
 	session.Values["user_id"] = user.ID
 	session.Save(r, w)
