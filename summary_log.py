@@ -73,8 +73,8 @@ def main():
             request = 'GET /diary/entries/*'
         if request.startswith('GET /diary/entry/'):
             request = 'GET /diary/entry/*'
-        if request.startswith('GET /diary/comment/'):
-            request = 'GET /diary/comment/*'
+        if request.startswith('POST /friends/'):
+            request = 'POST /friends/*'
         if request.startswith('POST /diary/comment/'):
             request = 'POST /diary/comment/*'
 
