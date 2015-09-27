@@ -304,16 +304,17 @@ func GetIndex(w http.ResponseWriter, r *http.Request) {
 		checkErr(err)
 	}
 
-	rows, err := db.Query(`SELECT id,user_id,private,created_at FROM entries WHERE user_id = ? ORDER BY created_at LIMIT 5`, user.ID)
+	rows, err := db.Query(`SELECT * FROM entries WHERE user_id = ? ORDER BY created_at LIMIT 5`, user.ID)
 	if err != sql.ErrNoRows {
 		checkErr(err)
 	}
 	entries := make([]Entry, 0, 5)
 	for rows.Next() {
 		var id, userID, private int
+		var body string
 		var createdAt time.Time
 		checkErr(rows.Scan(&id, &userID, &private, &body, &createdAt))
-		entries = append(entries, Entry{id, userID, private == 1, "", "", createdAt})
+		entries = append(entries, Entry{id, userID, private == 1, strings.SplitN(body, "\n", 2)[0], strings.SplitN(body, "\n", 2)[1], createdAt})
 	}
 	rows.Close()
 
