@@ -77,6 +77,8 @@ def main():
             request = 'POST /friends/*'
         if request.startswith('POST /diary/comment/'):
             request = 'POST /diary/comment/*'
+        if request.startswith('POST /profile/'):
+            request = 'POST /profile/*'
 
         req_count[request] += 1
         if reqtime:
