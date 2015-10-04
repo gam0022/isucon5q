@@ -382,7 +382,7 @@ LIMIT 10`, user.ID)
 		var userID, private int
 		checkErr(row.Scan(&userID, &private))
 		if private == 1 {
-			if !permitted(w, r, userID) {
+			if user.ID != userID {
 				continue
 			}
 		}
