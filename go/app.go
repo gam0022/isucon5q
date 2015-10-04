@@ -350,7 +350,7 @@ LIMIT 10`, user.ID)
 	}
 	rows.Close()
 
-	rows, err = db.Query(`SELECT * FROM entries AS E WHERE EXISTS(SELECT id FROM relations AS R WHERE R.one = ? AND R.another = E.user_id) ORDER BY created_at DESC LIMIT 10`, user.ID)
+	rows, err = db.Query(`SELECT * FROM entries AS E WHERE EXISTS(SELECT * FROM relations AS R WHERE R.one = ? AND R.another = E.user_id) ORDER BY id DESC LIMIT 10`, user.ID)
 	if err != sql.ErrNoRows {
 		checkErr(err)
 	}
@@ -367,7 +367,9 @@ LIMIT 10`, user.ID)
 	}
 	rows.Close()
 
-	rows, err = db.Query(`SELECT * FROM comments ORDER BY created_at DESC LIMIT 1000`)
+	rows, err = db.Query(`
+SELECT C.id, C.entry_id, C.user_id, C.comment, C.created_at FROM comments AS C LEFT JOIN entries AS E ON(C.entry_id = E.id AND (E.user_id = ? OR E.private = 0)) 
+WHERE EXISTS(SELECT * FROM relations AS R WHERE R.one = ? AND R.another = C.user_id) ORDER BY C.id DESC LIMIT 10`, user.ID, user.ID)
 	if err != sql.ErrNoRows {
 		checkErr(err)
 	}
@@ -375,21 +377,7 @@ LIMIT 10`, user.ID)
 	for rows.Next() {
 		c := Comment{}
 		checkErr(rows.Scan(&c.ID, &c.EntryID, &c.UserID, &c.Comment, &c.CreatedAt))
-		if !isFriend(w, r, c.UserID) {
-			continue
-		}
-		row := db.QueryRow(`SELECT user_id, private FROM entries WHERE id = ?`, c.EntryID)
-		var userID, private int
-		checkErr(row.Scan(&userID, &private))
-		if private == 1 {
-			if user.ID != userID {
-				continue
-			}
-		}
 		commentsOfFriends = append(commentsOfFriends, c)
-		if len(commentsOfFriends) >= 10 {
-			break
-		}
 	}
 	rows.Close()
 
