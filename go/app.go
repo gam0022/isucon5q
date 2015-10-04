@@ -378,14 +378,11 @@ LIMIT 10`, user.ID)
 		if !isFriend(w, r, c.UserID) {
 			continue
 		}
-		row := db.QueryRow(`SELECT * FROM entries WHERE id = ?`, c.EntryID)
-		var id, userID, private int
-		var body string
-		var createdAt time.Time
-		checkErr(row.Scan(&id, &userID, &private, &body, &createdAt))
-		entry := Entry{id, userID, private == 1, strings.SplitN(body, "\n", 2)[0], strings.SplitN(body, "\n", 2)[1], createdAt}
-		if entry.Private {
-			if !permitted(w, r, entry.UserID) {
+		row := db.QueryRow(`SELECT user_id, private FROM entries WHERE id = ?`, c.EntryID)
+		var userID, private int
+		checkErr(row.Scan(&userID, &private))
+		if private == 1 {
+			if !permitted(w, r, userID) {
 				continue
 			}
 		}
