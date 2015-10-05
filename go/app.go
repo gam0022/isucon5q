@@ -170,7 +170,7 @@ func getUserFromAccount(w http.ResponseWriter, name string) *User {
 func isFriend(w http.ResponseWriter, r *http.Request, anotherID int) bool {
 	session := getSession(w, r)
 	id := session.Values["user_id"]
-	row := db.QueryRow(`SELECT COUNT(1) AS cnt FROM relations WHERE one = ? AND another = ?`, id, anotherID)
+	row := db.QueryRow(`SELECT COUNT(id) AS cnt FROM relations WHERE one = ? AND another = ?`, id, anotherID)
 	cnt := new(int)
 	err := row.Scan(cnt)
 	checkErr(err)
@@ -275,7 +275,7 @@ func render(w http.ResponseWriter, r *http.Request, status int, file string, dat
 			return Entry{id, userID, private == 1, strings.SplitN(body, "\n", 2)[0], strings.SplitN(body, "\n", 2)[1], createdAt}
 		},
 		"numComments": func(id int) int {
-			row := db.QueryRow(`SELECT COUNT(*) AS c FROM comments WHERE entry_id = ?`, id)
+			row := db.QueryRow(`SELECT COUNT(id) AS c FROM comments WHERE entry_id = ?`, id)
 			var n int
 			checkErr(row.Scan(&n))
 			return n
@@ -382,7 +382,7 @@ WHERE EXISTS(SELECT * FROM relations AS R WHERE R.one = ? AND R.another = C.user
 	rows.Close()
 
 	var friends_count int
-	rows, err = db.Query(`SELECT COUNT(1) FROM relations WHERE one = ?`, user.ID)
+	rows, err = db.Query(`SELECT COUNT(id) FROM relations WHERE one = ?`, user.ID)
 	if err != sql.ErrNoRows {
 		checkErr(err)
 	}
