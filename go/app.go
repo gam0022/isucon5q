@@ -18,6 +18,7 @@ import (
 	"time"
 	"regexp"
 	"net"
+	"syscall"
 )
 
 var (
@@ -754,6 +755,7 @@ func main() {
 
 	//log.Fatal(http.ListenAndServe(":8080", r))
 	listen,_ := net.Listen("unix", "/run/sock-shared/isuxi.go.sock")
+	syscall.Chmod("/run/sock-shared/isuxi.go.sock", 0777)
 	log.Fatal(http.Serve(listen, r))
 }
 
