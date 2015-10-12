@@ -753,7 +753,7 @@ func main() {
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("../static")))
 
 	//log.Fatal(http.ListenAndServe(":8080", r))
-	listen,_ := net.Listen("unix", "/tmp/go.sock")
+	listen,_ := net.Listen("unix", "/run/sock-shared/isuxi.go.sock")
 	log.Fatal(http.Serve(listen, r))
 }
 
